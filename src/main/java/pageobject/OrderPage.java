@@ -1,4 +1,4 @@
-package pageObjects;
+package pageobject;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -19,37 +19,60 @@ public class OrderPage {
 
     // Локаторы
     // Поле "Имя"
-    public By nameField = By.xpath("//input[@placeholder='* Имя']");
+    private final By nameField = By.xpath("//input[@placeholder='* Имя']");
 
     // Поле "Фамилия"
-    public By lastnameField = By.xpath("//input[@placeholder='* Фамилия']");
+    private final By lastnameField = By.xpath("//input[@placeholder='* Фамилия']");
 
     // Поле "Адрес"
-    public By addressField = By.xpath("//input[@placeholder='* Адрес: куда привезти заказ']");
+    private final By addressField = By.xpath("//input[@placeholder='* Адрес: куда привезти заказ']");
 
     // Поле "Станция метро"
-    public By metroStationField = By.cssSelector(".select-search");
+    private final By metroStationField = By.cssSelector(".select-search");
 
     // Поле "Телефон"
-    public By phoneField = By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']");
+    private final By phoneField = By.xpath("//input[@placeholder='* Телефон: на него позвонит курьер']");
 
     // Кнопка "Далее"
-    public By nextButton = By.xpath("//button[text()='Далее']");
+    private final By nextButton = By.xpath("//button[text()='Далее']");
 
     // Поле "Когда привезти самокат"
-    public By dateField = By.cssSelector("input[placeholder='* Когда привезти самокат']");
+    private final By dateField = By.cssSelector("input[placeholder='* Когда привезти самокат']");
 
     // Поле "Срок аренды"
-    public By rentalPeriodField = By.cssSelector("div.Dropdown-root");
+    private final By rentalPeriodField = By.cssSelector("div.Dropdown-root");
 
     // Поле "Комментарий"
-    public By commentField = By.xpath("//input[@placeholder='Комментарий для курьера']");
+    private final By commentField = By.xpath("//input[@placeholder='Комментарий для курьера']");
 
     // Кнопка "Заказать"
-    public By finishOrderButton = By.xpath("//button[(@class='Button_Button__ra12g Button_Middle__1CSJM' and text()='Заказать')]");
+    private final By finishOrderButton = By.xpath("//button[(@class='Button_Button__ra12g Button_Middle__1CSJM' and text()='Заказать')]");
 
     // Кнопка "Да"
-    public By yesConfirmButton = By.xpath("//button[(@class='Button_Button__ra12g Button_Middle__1CSJM' and text()='Да')]");
+    private final By yesConfirmButton = By.xpath("//button[(@class='Button_Button__ra12g Button_Middle__1CSJM' and text()='Да')]");
+
+    // Ожидание всплывающего окна
+    private final By popupLocator = By.className("Order_ModalHeader__3FDaJ");
+
+    // Проверка текста в всплывающем окне
+    private final By popupTextLocator = By.xpath("//div[contains(text(),'Заказ оформлен')]");
+
+    // Геттеры для локаторов
+    public By getNameField() {
+        return nameField;
+    }
+
+    public By getLastnameField() {
+        return lastnameField;
+    }
+
+    public By getAddressField() {
+        return addressField;
+    }
+
+    public By getPhoneField() {
+        return phoneField;
+    }
 
     // Методы
     // Метод для ввода станции метро и выбора из выпадающего списка
@@ -103,11 +126,10 @@ public class OrderPage {
         colorOption.click();  // Если чекбокс не выбран, кликаем по нему
       }
 
+    // Метод для комментария
     public void commentField(String comment) {
-
         // Ожидаем, пока поле "Комментарий курьеру" станет доступным
         WebElement commentTextArea = wait.until(ExpectedConditions.elementToBeClickable(commentField));
-
         // Очищаем поле и вводим текст
         commentTextArea.clear();
         commentTextArea.sendKeys(comment);
@@ -118,7 +140,7 @@ public class OrderPage {
         driver.findElement(nextButton).click();
     }
 
-    // Метод для клика на кнопку "Заказать"
+    // Метод для клика на кнопку "Заказать" при оформлении
     public void clickFinishOrderButton() {
         driver.findElement(finishOrderButton).click();
     }
@@ -126,5 +148,17 @@ public class OrderPage {
     // Метод для клика на кнопку "Да"
     public void clickYesButton() {
         driver.findElement(yesConfirmButton).click();
+    }
+
+    // Метод для ожидания появления всплывающего окна
+    public WebElement waitForPopup() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(popupLocator));
+    }
+
+    // Метод для проверки текста в всплывающем окне
+    public boolean isPopupTextCorrect(String expectedText) {
+        WebElement popup = waitForPopup();
+        WebElement popupText = popup.findElement(popupTextLocator);
+        return popupText.getText().contains(expectedText);
     }
 }

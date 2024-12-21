@@ -1,30 +1,13 @@
 package tests;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import pageObjects.MainPage;
-import pageObjects.OrderPage;
-import org.openqa.selenium.By;
-
-import java.time.Duration;
 
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
-public class ClickOrderButtonBottomTest {
-    private WebDriver driver;
-    private MainPage mainPage;
-    private OrderPage orderPage;
-    private WebDriverWait wait;
+public class ClickOrderButtonBottomTest extends BaseTest{
 
     // Параметры для теста (наборы данных)
     @Parameterized.Parameters
@@ -58,35 +41,22 @@ public class ClickOrderButtonBottomTest {
         this.deliveryDate = deliveryDate;
     }
 
-    @Before
-    public void setUp() {
-
-        //Запуск на Chrome
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized"); // Открыть браузер в полноэкранном режиме
-        driver = new ChromeDriver(options);
-
-        wait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        mainPage = new MainPage(driver);
-        orderPage = new OrderPage(driver);
-    }
-
     @Test
     public void testOrderFlow()  {
 
         // Кликаем на всплывашку о куках
-        driver.findElement(By.className("App_CookieButton__3cvqF")).click();
+        mainPage.clickCookieButton();
 
         // Клик по кнопке "Заказать" снизу
         mainPage.clickOrderButtonBottom();
 
         // Заполнение первой формы
-        driver.findElement(orderPage.nameField).sendKeys(name);           // Имя
-        driver.findElement(orderPage.lastnameField).sendKeys(lastname);   // Фамилия
-        driver.findElement(orderPage.addressField).sendKeys(address);     // Адрес
-        orderPage.selectMetroStation(station);                            // Выбор станции метро из выпадающего списка
-        driver.findElement(orderPage.phoneField).sendKeys(phone);         // Телефон
+        driver.findElement(orderPage.getNameField()).sendKeys(name);           // Имя
+        driver.findElement(orderPage.getLastnameField()).sendKeys(lastname);   // Фамилия
+        driver.findElement(orderPage.getAddressField()).sendKeys(address);     // Адрес
+        orderPage.selectMetroStation(station);                                 // Выбор станции метро из выпадающего списка
+        driver.findElement(orderPage.getPhoneField()).sendKeys(phone);         // Телефон
+
         // Кнопка Далее
         orderPage.clickNextButton();
 
@@ -95,22 +65,15 @@ public class ClickOrderButtonBottomTest {
         orderPage.selectRentTerm(rentalPeriod);                        // Выбор срока аренды из выпадающего списка
         orderPage.selectColor(color);                                  // Выбираем цвет самоката
         orderPage.commentField(comment);                               // Вводим комментарий
+
         // Кнопка Заказать
         orderPage.clickFinishOrderButton();
 
         // Кнопка Да
         orderPage.clickYesButton();
 
-        // Ожидаем появления всплывающего окна
-        WebElement popup = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("Order_ModalHeader__3FDaJ")));
-
-        // Проверяем, что текст всплывающего окна соответствует "Заказ оформлен"
-        WebElement popupText = popup.findElement(By.xpath("//div[contains(text(),'Заказ оформлен')]"));
-        assertNotNull("Popup with confirmation text is not displayed", popupText);
-    }
-
-    @After
-    public void tearDown() {
-        driver.quit();
+        // Ожидаем появления всплывающего окна и проверяем текст
+        assertTrue("Popup with confirmation text is not displayed",
+                orderPage.isPopupTextCorrect("Заказ оформлен"));
     }
 }
